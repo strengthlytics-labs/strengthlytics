@@ -1,6 +1,9 @@
 import os
 import psycopg
 
+from config import get_database_url
+
+
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS workspaces (
     id           BIGSERIAL PRIMARY KEY,
@@ -20,18 +23,12 @@ CREATE TABLE IF NOT EXISTS feedback_entries (
     text          TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_feedback_workspace_created_at
-ON feedback_entries (workspace_id, created_at DESC);
 """
 
-def get_db_url() -> str:
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        raise RuntimeError("Missing DATABASE_URL env var.")
-    return db_url
+
 
 def init_db() -> None:
-    db_url = get_db_url()
+    db_url = get_database_url()
     with psycopg.connect(db_url) as conn:
         with conn.cursor() as cur:
             cur.execute(SCHEMA_SQL)
