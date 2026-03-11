@@ -13,3 +13,7 @@ def create_workspace_endpoint(data: DrawerCreate):
     create_workspace(token=data.token, label=data.label)
 
     return {"ok": True}
+
+@router.get("/api/workspaces/{token}")
+def open_workspace_endpoint(token: str):
+    open_workspace()
