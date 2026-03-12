@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from db.db_bridge import create_workspace, open_workspace, save_feedback
+from db.db_bridge import create_workspace, open_workspace, save_feedback, list_feedback
 from api.models import DrawerCreate, FeedbackCreate
 from core.feedback import FeedbackEntry
 
@@ -43,6 +43,9 @@ def save_feedback_endpoint(token: str, data: FeedbackCreate):
 
     return {"feedback_id": feedback_id}
 
-@router.get("/api/workspace/{token}/feedback")
-def list_feedback_endpoint(token):
+@router.get("/api/workspace/{workspace_id}/feedback")
+def list_feedback_endpoint(workspace_id: int):
+    feedback = list_feedback(workspace_id)
+    return feedback
     
+@router.post("/api/workspaces/{workspace_id}/analyze")
