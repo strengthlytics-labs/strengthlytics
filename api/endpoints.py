@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from db.db_bridge import create_workspace, open_workspace, save_feedback
 from api.models import DrawerCreate, FeedbackCreate
 from core.feedback import FeedbackEntry
@@ -11,24 +11,38 @@ def health():
 
 @router.post("/api/workspace")
 def create_workspace_endpoint(data: DrawerCreate):
-    create_workspace(token=data.token, label=data.label)
+    try:
+        create_workspace(token=data.token, label=data.label)
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
 
     return {"ok": True}
 
-@router.get("/api/workspaces/{token}")
+@router.get("/api/workspace/{token}")
 def open_workspace_endpoint(token: str):
-    workspace = open_workspace(token)
+    try:
+        workspace = open_workspace(token)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
     return workspace
 
-@router.post("/api/workspaces/{token}/feedback")
+@router.post("/api/workspace/{token}/feedback")
 def save_feedback_endpoint(token: str, data: FeedbackCreate):
-
     feedback = FeedbackEntry(
-    text=data.text,
-    source=data.source,
-    context=data.context,
-    entry_type=data.entry_type
-)
-    feedback_id = save_feedback(token, feedback)
+        text=data.text,
+        source=data.source,
+        context=data.context,
+        entry_type=data.entry_type,
+    )
+
+    try:
+        feedback_id = save_feedback(token, feedback)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
     return {"feedback_id": feedback_id}
+
+@router.get("/api/workspace/{token}/feedback")
+def list_feedback_endpoint(token):
+    
