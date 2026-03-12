@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from db.db_bridge import create_workspace, open_workspace, save_feedback, list_feedback
 from api.models import DrawerCreate, FeedbackCreate
 from core.feedback import FeedbackEntry
+from ai.ai import analyze_strengths
 
 router = APIRouter()
 
@@ -9,7 +10,7 @@ router = APIRouter()
 def health():
     return {"ok": True}
 
-@router.post("/api/workspace")
+@router.post("/api/workspaces")
 def create_workspace_endpoint(data: DrawerCreate):
     try:
         create_workspace(token=data.token, label=data.label)
@@ -18,7 +19,7 @@ def create_workspace_endpoint(data: DrawerCreate):
 
     return {"ok": True}
 
-@router.get("/api/workspace/{token}")
+@router.get("/api/workspaces/{token}")
 def open_workspace_endpoint(token: str):
     try:
         workspace = open_workspace(token)
@@ -27,8 +28,8 @@ def open_workspace_endpoint(token: str):
 
     return workspace
 
-@router.post("/api/workspace/{token}/feedback")
-def save_feedback_endpoint(token: str, data: FeedbackCreate):
+@router.post("/api/workspaces/{workspace_id}/feedback")
+def save_feedback_endpoint(workspace_id: int, data: FeedbackCreate):
     feedback = FeedbackEntry(
         text=data.text,
         source=data.source,
@@ -37,15 +38,25 @@ def save_feedback_endpoint(token: str, data: FeedbackCreate):
     )
 
     try:
-        feedback_id = save_feedback(token, feedback)
+        feedback_id = save_feedback(workspace_id, feedback)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
     return {"feedback_id": feedback_id}
 
-@router.get("/api/workspace/{workspace_id}/feedback")
+@router.get("/api/workspaces/{workspace_id}/feedback")
 def list_feedback_endpoint(workspace_id: int):
     feedback = list_feedback(workspace_id)
     return feedback
     
 @router.post("/api/workspaces/{workspace_id}/analyze")
+def analyze_endpoint(workspace_id: int):
+
+    feedback = list_feedback(workspace_id)
+
+    try:
+        result = analyze_strengths(feedback)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return result
