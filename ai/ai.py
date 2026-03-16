@@ -17,31 +17,33 @@ def analyze_strengths(feedback_list: list[dict]) -> dict:
 
     # 3. Instruktion till modellen
     instructions = """
-You analyze feedback entries about one person from multiple others.
+You analyze feedback entries about one person.
 
-Your task is to identify three underlying strengths based on patterns in the feedback.
+First, internally identify patterns or recurring themes across the feedback entries.
+Look for behaviors, actions, or examples that suggest broader strengths.
 
-Do not just repeat words that appear in the feedback.
-Instead, infer broader strengths from behaviors or examples.
+Then summarize these patterns into exactly three strengths.
+
+Do not just repeat words from the feedback.
+Instead infer broader strengths from the behaviors described.
 
 Example:
-If feedback mentions painting, music, ideas or imagination → the strength may be “Creativity”.
+If feedback mentions painting, music, imagination or ideas, the strength could be "Creativity".
 
 Rules:
-	•	Return exactly 3 strengths.
-	•	Each strength name must be a short concept (one or two words).
-	•	Each reason must briefly explain what feedback patterns led to the strength.
-	•	Prefer strengths supported by multiple feedback entries.
-	•	Return only JSON.
-        Return ONLY valid JSON in this exact format:
+- Return exactly 3 strengths.
+- Each strength name must be short (1–2 words).
+- Each reason must be very short.
+- Prefer strengths supported by multiple feedback entries.
+- Return ONLY valid JSON in this format:
 
-        {
-        "strengths": [
-            {"name": "string", "reason": "string"},
-            {"name": "string", "reason": "string"},
-            {"name": "string", "reason": "string"}
-        ]
-        }
+{
+  "strengths": [
+    {"name": "string", "reason": "string"},
+    {"name": "string", "reason": "string"},
+    {"name": "string", "reason": "string"}
+  ]
+}
 """
 
     # 4. OpenAI-anrop

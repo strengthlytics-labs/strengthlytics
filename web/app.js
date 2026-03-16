@@ -115,6 +115,7 @@ saveBtn.addEventListener("click", async () => {
 
 const analyzeBtn = document.getElementById("analyzeBtn");
 const analyzeResult = document.getElementById("analyzeResult");
+const analyzeLoader = document.getElementById("analyzeLoader");
 
 analyzeBtn.addEventListener("click", async () => {
     const workspaceId = localStorage.getItem("workspace_id");
@@ -124,21 +125,34 @@ analyzeBtn.addEventListener("click", async () => {
         return;
     }
 
-    const response = await fetch(`/api/workspaces/${workspaceId}/analyze`, {
-        method: "POST"
-    });
+    analyzeBtn.disabled = true;
+    analyzeLoader.style.display = "inline";
+    analyzeResult.textContent = "";
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        analyzeResult.textContent = errorData.detail;
-        return;
+    try {
+        const response = await fetch(`/api/workspaces/${workspaceId}/analyze`, {
+            method: "POST"
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            analyzeResult.textContent = errorData.detail;
+            return;
+        }
+
+        const data = await response.json();
+
+        analyzeResult.innerHTML = data.strengths
+            .map((strength, index) => `
+                <p><strong>${index + 1}. ${strength.name}</strong><br>${strength.reason}</p>
+            `)
+            .join("");
+
+    } catch (error) {
+        analyzeResult.textContent = "Something went wrong during analysis.";
+        console.error(error);
+    } finally {
+        analyzeBtn.disabled = false;
+        analyzeLoader.style.display = "none";
     }
-
-    const data = await response.json();
-
-    analyzeResult.innerHTML = data.strengths
-    .map((strength, index) => `
-        <p><strong>${index + 1}. ${strength.name}</strong><br>${strength.reason}</p>
-    `)
-    .join("");
 });

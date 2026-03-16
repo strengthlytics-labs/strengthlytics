@@ -94,3 +94,7 @@ htmlcov/
 *.swp
 *.swo
 *.bak
+
+.env
+.secrets.toml
+__pycache__/
