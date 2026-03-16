@@ -12,7 +12,7 @@ if "OPENAI_API_KEY" in st.secrets:
 
 if "DATABASE_URL" in st.secrets:
     os.environ["DATABASE_URL"] = st.secrets["DATABASE_URL"]
-    
+
 st.image("web/assets/logo.png",)
 
 
@@ -64,9 +64,9 @@ if "workspace_id" in st.session_state:
 st.header("Add feedback")
 
 text = st.text_area("Feedback")
-source = st.text_input("Source")
-context = st.text_input("Context")
-entry_type = st.text_input("Type")
+source = st.text_input("Source (optional)")
+context = st.text_input("Context (optional)")
+entry_type = st.text_input("Type (optional)")
 
 if st.button("Save feedback"):
     if "workspace_id" not in st.session_state:
@@ -98,7 +98,9 @@ if st.button("Analyze"):
     else:
         try:
             feedback = list_feedback(st.session_state["workspace_id"])
-            result = analyze_strengths(feedback)
+
+            with st.spinner("Analyzing feedback..."):
+                result = analyze_strengths(feedback)
 
             st.subheader("Your strengths")
 
