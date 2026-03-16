@@ -4,8 +4,18 @@ from db.db_bridge import create_workspace, open_workspace, save_feedback, list_f
 from core.feedback import FeedbackEntry
 from ai.ai import analyze_strengths
 
+import os
+import streamlit as st
 
+if "OPENAI_API_KEY" in st.secrets:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+
+if "DATABASE_URL" in st.secrets:
+    os.environ["DATABASE_URL"] = st.secrets["DATABASE_URL"]
+    
 st.image("web/assets/logo.png",)
+
+
 
 # ---------- Create drawer ----------
 
